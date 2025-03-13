@@ -65,6 +65,11 @@ bool TcpDriver::open()
   return m_socket->open();
 }
 
+bool TcpDriver::open(bool repeat_hw_logging)
+{
+  return m_socket->open(repeat_hw_logging);
+}
+
 void TcpDriver::closeSync()
 {
   if(m_socket != NULL){
