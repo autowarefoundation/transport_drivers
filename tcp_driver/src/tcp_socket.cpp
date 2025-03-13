@@ -505,13 +505,14 @@ bool TcpSocket::open()
   m_socket->open(boost::asio::ip::tcp::v4());
   m_socket->set_option(boost::asio::ip::tcp::socket::reuse_address(true));
 
-  std::cout << m_remote_endpoint << std::endl;
-
+  RCLCPP_INFO_ONCE(rclcpp::get_logger("TcpSocket::openning"), "Opening connection to: %s:%d", 
+  m_remote_endpoint.address().to_string().c_str(), 
+  m_remote_endpoint.port());
   boost::system::error_code ec = boost::asio::error::would_block;
   deadline_.expires_from_now(boost::posix_time::seconds(5));
   deadline_.async_wait([this](const boost::system::error_code& ec2) {
     if (!ec2) {
-      std::cerr << "# Canceling socket operation due to timeout (5s).\n";
+      RCLCPP_INFO_ONCE(rclcpp::get_logger("TcpSocket::openning"), "Canceling socket operation due to timeout (5s).");
       m_socket->cancel();
       m_ctx->restart();
     }
@@ -521,14 +522,14 @@ bool TcpSocket::open()
   do m_ctx->run_one(); while (ec == boost::asio::error::would_block);
 
   if (ec || !m_socket->is_open()) {
-    RCLCPP_ERROR_STREAM(rclcpp::get_logger("TcpSocket::open"), ec.message());
+    RCLCPP_ERROR_ONCE(rclcpp::get_logger("TcpSocket::open"), ec.message().c_str());
     m_socket->cancel();
     reset_flg = true;
     deadline_.cancel();
     m_ctx->restart();
     return false;
   } else {
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("TcpSocket::open"), "connected");
+    RCLCPP_INFO_ONCE(rclcpp::get_logger("TcpSocket::open"), "connected");
   }
   reset_flg = false;
   deadline_.cancel();
