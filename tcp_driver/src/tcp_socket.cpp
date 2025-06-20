@@ -538,6 +538,10 @@ bool TcpSocket::open()
 
 void TcpSocket::closeSync()
 {
+  if (!isOpen()) {
+    return;
+  }
+
   boost::system::error_code error;
   m_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
   if (error && error != boost::system::errc::not_connected) {
@@ -551,6 +555,10 @@ void TcpSocket::closeSync()
 
 void TcpSocket::close()
 {
+  if (!isOpen()) {
+    return;
+  }
+
   m_ctx->post([this]() {
     boost::system::error_code error;
     m_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
@@ -564,7 +572,6 @@ void TcpSocket::close()
     if (error) {
       RCLCPP_ERROR_STREAM(rclcpp::get_logger("TcpSocket::close"), error.message());
     }
-    m_socket.reset();
   });
   m_ctx->run();
 }
