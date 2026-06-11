@@ -67,14 +67,14 @@ bool TcpDriver::open()
 
 void TcpDriver::closeSync()
 {
-  if(m_socket != NULL){
+  if(isOpen()){
     m_socket->closeSync();
   }
 }
 
 void TcpDriver::close()
 {
-  if(m_socket != NULL){
+  if(isOpen()){
     m_socket->close();
   }
 }
