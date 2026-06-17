@@ -117,6 +117,15 @@ public:
   bool open();
 
   /**
+           * @brief Open the socket with set parameters
+           *
+           * @param repeat_hw_logging Set false to print logs just once
+           * @return true if the connect function was successful
+           * @return false if the connect function was not successful
+           */
+  bool open(bool repeat_hw_logging);
+
+  /**
            * @brief Close the socket (sync)
            *
            */
