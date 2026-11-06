@@ -41,18 +41,18 @@ UdpSocket::UdpSocket(
   const size_t recv_buffer_size)
 : m_ctx(ctx),
   m_udp_socket(ctx.ios()),
-  m_remote_endpoint(boost::asio::ip::address::from_string(remote_ip), remote_port),
-  m_host_endpoint(boost::asio::ip::address::from_string(host_ip), host_port),
-  m_any_endpoint(boost::asio::ip::address::from_string("0.0.0.0"), host_port),
+  m_remote_endpoint(boost::asio::ip::make_address(remote_ip), remote_port),
+  m_host_endpoint(boost::asio::ip::make_address(host_ip), host_port),
+  m_any_endpoint(boost::asio::ip::make_address("0.0.0.0"), host_port),
   m_recv_buffer_size(recv_buffer_size),
   m_use_multicast(false)
 {
   m_remote_endpoint = remote_ip.empty() ?
     boost::asio::ip::udp::endpoint{boost::asio::ip::udp::v4(), remote_port} :
-  boost::asio::ip::udp::endpoint{boost::asio::ip::address::from_string(remote_ip), remote_port};
+  boost::asio::ip::udp::endpoint{boost::asio::ip::make_address(remote_ip), remote_port};
   m_host_endpoint = host_ip.empty() ?
     boost::asio::ip::udp::endpoint{boost::asio::ip::udp::v4(), host_port} :
-  boost::asio::ip::udp::endpoint{boost::asio::ip::address::from_string(host_ip), host_port};
+  boost::asio::ip::udp::endpoint{boost::asio::ip::make_address(host_ip), host_port};
   m_recv_buffer.resize(recv_buffer_size);
 }
 
