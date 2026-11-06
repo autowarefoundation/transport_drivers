@@ -39,8 +39,8 @@ TcpSocket::TcpSocket(
 : m_ctx(ctx),
   m_socket(new boost::asio::ip::tcp::socket(*m_ctx)),
   deadline_(*m_ctx),
-  m_remote_endpoint(boost::asio::ip::address::from_string(remote_ip), remote_port),
-  m_host_endpoint(boost::asio::ip::address::from_string(host_ip), host_port)
+  m_remote_endpoint(boost::asio::ip::make_address(remote_ip), remote_port),
+  m_host_endpoint(boost::asio::ip::make_address(host_ip), host_port)
 {
 #ifdef WITH_DEBUG_STDCOUT_TCP_SOCKET
     std::cout << "remote_ip=" << remote_ip << std::endl;
@@ -50,10 +50,10 @@ TcpSocket::TcpSocket(
 #endif
   m_remote_endpoint = remote_ip.empty() ?
     boost::asio::ip::tcp::endpoint{boost::asio::ip::tcp::v4(), remote_port} :
-  boost::asio::ip::tcp::endpoint{boost::asio::ip::address::from_string(remote_ip), remote_port};
+  boost::asio::ip::tcp::endpoint{boost::asio::ip::make_address(remote_ip), remote_port};
   m_host_endpoint = host_ip.empty() ?
     boost::asio::ip::tcp::endpoint{boost::asio::ip::tcp::v4(), host_port} :
-  boost::asio::ip::tcp::endpoint{boost::asio::ip::address::from_string(host_ip), host_port};
+  boost::asio::ip::tcp::endpoint{boost::asio::ip::make_address(host_ip), host_port};
 }
 
 TcpSocket::TcpSocket(
@@ -508,7 +508,7 @@ bool TcpSocket::open()
   std::cout << m_remote_endpoint << std::endl;
 
   boost::system::error_code ec = boost::asio::error::would_block;
-  deadline_.expires_from_now(boost::posix_time::seconds(5));
+  deadline_.expires_after(std::chrono::seconds(5));
   deadline_.async_wait([this](const boost::system::error_code& ec2) {
     if (!ec2) {
       std::cerr << "# Canceling socket operation due to timeout (5s).\n";
@@ -551,14 +551,14 @@ void TcpSocket::closeSync()
 
 void TcpSocket::close()
 {
-  m_ctx->post([this]() {
+  boost::asio::post(*m_ctx, [this]() {
     boost::system::error_code error;
     m_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
     if (error && error != boost::system::errc::not_connected) {
       RCLCPP_ERROR_STREAM(rclcpp::get_logger("TcpSocket::shutdown"), error.message());
     }
   });
-  m_ctx->post([this]() {
+  boost::asio::post(*m_ctx, [this]() {
     boost::system::error_code error;
     m_socket->close(error);
     if (error) {
