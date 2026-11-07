@@ -240,7 +240,7 @@ void HttpClient::asyncWrite(
         shared_from_this()));
 
     // Not working well
-    connect_timer_.expires_from_now(std::chrono::milliseconds(5000));
+    connect_timer_.expires_after(std::chrono::milliseconds(5000));
     connect_timer_.async_wait(
       [ = ](const boost::system::error_code & ec) {
         if (ec == boost::asio::error::operation_aborted) {

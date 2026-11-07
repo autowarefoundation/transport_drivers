@@ -30,8 +30,9 @@ IoContext::IoContext()
 : IoContext(std::thread::hardware_concurrency()) {}
 
 IoContext::IoContext(size_t threads_count)
-: m_ios(new boost::asio::io_service()),
-  m_work(new boost::asio::io_service::work(ios())),
+: m_ios(new boost::asio::io_context()),
+  m_work(new boost::asio::executor_work_guard<boost::asio::io_context::executor_type>(
+      ios().get_executor())),
   m_ios_thread_workers(new drivers::common::thread_group())
 {
   for (size_t i = 0; i < threads_count; ++i) {
@@ -51,7 +52,7 @@ IoContext::~IoContext()
   waitForExit();
 }
 
-boost::asio::io_service & IoContext::ios() const
+boost::asio::io_context & IoContext::ios() const
 {
   return *m_ios;
 }
@@ -69,7 +70,7 @@ uint32_t IoContext::serviceThreadCount()
 void IoContext::waitForExit()
 {
   if (!ios().stopped()) {
-    ios().post([&]() {m_work.reset();});
+    boost::asio::post(ios(), [&]() {m_work.reset();});
   }
 
   ios().stop();

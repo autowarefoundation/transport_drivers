@@ -166,7 +166,11 @@ std::vector<uint8_t> TcpDriver::getPayload()
 boost::system::error_code TcpDriver::run()
 {
   boost::system::error_code ec;
-  m_ctx->run(ec);
+  try {
+    m_ctx->run();
+  } catch (const boost::system::system_error & e) {
+    ec = e.code();
+  }
   return ec;
 }
 

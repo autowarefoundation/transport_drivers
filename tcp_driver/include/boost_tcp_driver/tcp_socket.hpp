@@ -314,8 +314,8 @@ private:
            */
   std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
 
-  /// @brief boost::asio::deadline_timer for connection
-  boost::asio::deadline_timer deadline_;
+  /// @brief boost::asio::steady_timer for connection
+  boost::asio::steady_timer deadline_;
 
   /**
            * @brief Device IP address
